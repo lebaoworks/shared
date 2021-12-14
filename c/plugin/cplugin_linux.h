@@ -1,3 +1,5 @@
+// cplugin_linux.h
+
 #include <stdint.h>
 
 /**
@@ -8,7 +10,7 @@
  * 
  * @return handle to plugin, if NULL, see err
  */
-static void* CPluginOpen(const char* path, char** err);
+void* CPluginOpen(const char* path, char** err);
 
 /**
  * @brief Close plugin
@@ -18,10 +20,21 @@ static void* CPluginOpen(const char* path, char** err);
  * 
  * @return 0 if success, error code otherwise, see err
  */
-static int CPluginClose(void* h, char** err);
+int CPluginClose(void* h, char** err);
 
 /**
  * @brief Call plugin function
+ * 
+ * @param h handle to plugin
+ * @param name function name
+ * @param err null-terminated string describes error, needs to be freed
+ * 
+ * @return address of the return data
+ */
+char* CPluginCall(void* h, char* name, char** err);
+
+/**
+ * @brief Call plugin function with parameters
  * 
  * @param h handle to plugin
  * @param name function name
@@ -31,4 +44,4 @@ static int CPluginClose(void* h, char** err);
  * 
  * @return address of the return data
  */
-static char* CPluginCall(void* h, char* name, uint32_t argc, char** argv, char** err);
+char* CPluginCallArgs(void* h, char* name, uint32_t argc, char** argv, char** err);

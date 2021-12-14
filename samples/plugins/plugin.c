@@ -11,8 +11,8 @@ char* GetName() {
     return pluginName;
 }
 
-uint64_t GetVersion() {
-    return pluginVersion;
+char* GetVersion() {
+    return (char*) &pluginVersion;
 }
 
 char* Init(uint32_t argc, char** argv)

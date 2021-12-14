@@ -10,8 +10,8 @@ import (
 )
 
 var (
-    Name string
-    Version uint64
+    Name string = "asd"
+    Version uint64 = 0
     pluginName = C.CString(Name)
     pluginVersion = C.uint64_t(Version)
 )
@@ -23,8 +23,8 @@ func GetName() *C.char {
 }
 
 //export GetVersion
-func GetVersion() C.uint64_t {
-    return pluginVersion
+func GetVersion() *C.char {
+    return (*C.char) (unsafe.Pointer(&pluginVersion))
 }
 
 //export Init
