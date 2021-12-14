@@ -1,29 +1,8 @@
-package plugin
+package cplugin
 
 /*
 #cgo linux LDFLAGS: -ldl
-#include <dlfcn.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#include <stdio.h>
-
-static uintptr_t pluginOpen(const char* path, char** err) {
-	void* h = dlopen(path, RTLD_NOW|RTLD_GLOBAL);
-	if (h == NULL) {
-		*err = (char*)dlerror();
-	}
-	return (uintptr_t)h;
-}
-
-static void* pluginLookup(uintptr_t h, const char* name, char** err) {
-	void* r = dlsym((void*)h, name);
-	if (r == NULL) {
-		*err = (char*)dlerror();
-	}
-	return r;
-}
+#include "../../c/plugin/cplugin_linux.h"
 */
 import "C"
 
@@ -48,15 +27,9 @@ func (p *CPlugin) Name() string {
 func (p *CPlugin) Version() uint64 {
     return p.version
 }
-func (p *CPlugin) Call(fun string, params ...interface{}) []interface{} {
-    f, err := p.GetFunc(fun)
-    if err != nil {
-        return []interface{}{err}
-    }
-    return f(params...)
-}
 
-func Load(path string) (p *Plugin, err error) {
+
+func Load(path string) (p *CPlugin, err error) {
     _p, e := plugin.Open(path)
     if e != nil {
         err = e
@@ -78,4 +51,12 @@ func Load(path string) (p *Plugin, err error) {
     p.name = nameSymb.(string)
     p.version = verSymb.(uint64)
     return
+}
+
+func (p *CPlugin) Call(fun string, params ...interface{}) []interface{} {
+    f, err := p.getFunc(fun)
+    if err != nil {
+        return []interface{}{err}
+    }
+    return f(params...)
 }
