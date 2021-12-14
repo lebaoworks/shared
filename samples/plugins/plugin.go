@@ -10,7 +10,7 @@ import (
 )
 
 var (
-    Name string = "asd"
+    Name string = "Go-Plugin"
     Version uint64 = 0
     pluginName = C.CString(Name)
     pluginVersion = C.uint64_t(Version)
