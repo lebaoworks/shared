@@ -32,7 +32,6 @@ func Init(argc C.uint32_t, argv **C.char) *C.char {
     fmt.Println(int(argc))
     length := int(argc)
     tmpslice := (*[1 << 30]*C.char)(unsafe.Pointer(argv))[:length:length]
-    fmt.Println(len(tmpslice))
     for _, s := range tmpslice {
         fmt.Println(C.GoString(s))
     }

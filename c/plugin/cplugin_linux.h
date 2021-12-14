@@ -1,10 +1,5 @@
 #include <stdint.h>
 
-typedef char* (*PLUGINFUNC) (
-    uint32_t,   // argc
-    char**      // argv    
-);
-
 /**
  * @brief Load plugin
  * 
@@ -13,7 +8,7 @@ typedef char* (*PLUGINFUNC) (
  * 
  * @return handle to plugin, if NULL, see err
  */
-static void* PluginOpen(const char* path, char** err);
+static void* CPluginOpen(const char* path, char** err);
 
 /**
  * @brief Close plugin
@@ -23,7 +18,7 @@ static void* PluginOpen(const char* path, char** err);
  * 
  * @return 0 if success, error code otherwise, see err
  */
-static int PluginClose(void* h, char** err);
+static int CPluginClose(void* h, char** err);
 
 /**
  * @brief Call plugin function
@@ -36,4 +31,4 @@ static int PluginClose(void* h, char** err);
  * 
  * @return address of the return data
  */
-static char* PluginCall(void* h, char* name, uint32_t argc, char** argv, char** err);
+static char* CPluginCall(void* h, char* name, uint32_t argc, char** argv, char** err);

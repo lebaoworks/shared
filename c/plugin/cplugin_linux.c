@@ -12,10 +12,12 @@
 #include <stdio.h>
 #include <string.h>
 
+// =================================== //
+// ============ERROR HANDLE=========== //
+// =================================== //
+
 #define ERROR_SIZE 512
-
 char* MALLOC_FAIL = "malloc memory for error infomation fail";
-
 char* setError(char* str) {
     int len = strlen(str);
     char* err = malloc(len+1);
@@ -25,7 +27,16 @@ char* setError(char* str) {
     return err;
 }
 
-static void* PluginOpen(const char* path, char** err) {
+// =================================== //
+// =============IMPLEMENTS============ //
+// =================================== //
+
+typedef char* (*PLUGINFUNC) (
+    uint32_t,   // argc
+    char**      // argv    
+);
+
+static void* CPluginOpen(const char* path, char** err) {
     *err = NULL;
     void* h = dlopen(path, RTLD_NOW|RTLD_GLOBAL);
     if (h == NULL) {
@@ -34,7 +45,7 @@ static void* PluginOpen(const char* path, char** err) {
     return h;
 }
 
-static int PluginClose(void* h, char** err) {
+static int CPluginClose(void* h, char** err) {
     *err = NULL;
     int error = dlclose(h);
     if (error) {
@@ -43,7 +54,7 @@ static int PluginClose(void* h, char** err) {
     return error;
 }
 
-static char* PluginCall(void* h, char* name, uint32_t argc, char** argv, char** err) {
+static char* CPluginCall(void* h, char* name, uint32_t argc, char** argv, char** err) {
     *err = 0;
 
     // look for symbol
@@ -76,7 +87,7 @@ static char* PluginCall(void* h, char* name, uint32_t argc, char** argv, char** 
 //     char* err = 0;
 
 //     // Open
-//     void* handle = PluginOpen(path, &err);
+//     void* handle = CPluginOpen(path, &err);
 //     if (handle == NULL) {
 //         printf("ERR: %s\n", err);
 //         exit(1);
@@ -86,13 +97,13 @@ static char* PluginCall(void* h, char* name, uint32_t argc, char** argv, char** 
 //     // Init
 //     uint32_t argc = 5;
 //     char* argv[] = {"asd", "zxc", "zxc", "qwe", "ert"};
-//     if (PluginCall(handle, "Init", argc, argv, &err) != 0) {
+//     if (CPluginCall(handle, "Init", argc, argv, &err) != 0) {
 //         printf("Init ERR: %s\n", err);
 //         exit(1);
 //     }
             
 //     // Close
-//     if (PluginClose(handle, &err) != 0) {
+//     if (CPluginClose(handle, &err) != 0) {
 //         printf("Unload ERR: %s\n", err);
 //         exit(1);
 //     }
@@ -100,8 +111,8 @@ static char* PluginCall(void* h, char* name, uint32_t argc, char** argv, char** 
 // }
 // int main()
 // {
-//     load_plugin("./sample.so");
+//     load_plugin("./plugin.so");
 //     getc(stdin);
-//     load_plugin("./sample.so");
+//     load_plugin("./plugin.so");
 //     return 0;
 // }
