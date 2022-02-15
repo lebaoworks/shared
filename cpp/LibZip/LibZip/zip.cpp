@@ -167,7 +167,7 @@ bool ZipEntry::from_file(wstring external_path, wstring internal_path, ZipCompre
     // reparse headers
     this->header.signature = ENTRY_HEADER_SIGNATURE;
     this->header.version = VERSION;
-    this->header.flags = 0;
+    this->header.flags = 1<<11; // force use utf-8 name
     this->header.compression = (uint16_t) ZipCompressionMethod::NoCompression;
     this->header.mod_time = 0;      // [MISSING] Implement later
     this->header.mod_date = 0;      // [MISSING] Implement later
