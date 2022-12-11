@@ -70,6 +70,7 @@ public:
         friend class List;
     private:
         Node* node;
+        void remove() { delete static_cast<NodeT*>(node); }
     public:
         Iterator(Node* n) : node(n) {}
         
@@ -79,6 +80,10 @@ public:
         Iterator& operator++() { node = node->next; return *this; }
         /// @brief Postfix increment operator
         Iterator operator++(int) { node = node->next; return *this; }
+        /// @brief Prefix decrement operator
+        Iterator& operator--() { node = node->prev; return *this; }
+        /// @brief Postfix decrement operator
+        Iterator operator--(int) { node = node->prev; return *this; }
         /// @brief Not equal operator
         bool operator!=(const Iterator& b) { return node != b.node; }
         /// @brief Equal operator
@@ -90,38 +95,39 @@ public:
     };
 
     List() {}
-    ~List() { while (!empty()) erase(begin()); }
-    /// @brief Push object to the back of list.
+    ~List() { while (!empty()) delete static_cast<NodeT*>(node.next); }
+
+    /// @brief Push object to the back of container.
     /// @param t Reference to the object.
     /// @return true if success, false otherwise.
     bool push_back(T& t) { return node.link_front(new NodeT(t)); }
-    /// @brief Push object to the back of list.
+    /// @brief Push object to the back of container.
     /// @param t Reference to the object.
     /// @return true if success, false otherwise.
     bool push_back(T&& t) { return node.link_front(new NodeT(move(t))); }
 
-    /// @brief Push object to the front of list.
+    /// @brief Push object to the front of container.
     /// @param t Reference to the object.
     /// @return true if success, false otherwise.
     bool push_front(T& t) { return node.link_back(new NodeT(t)); }
-    /// @brief Push object to the front of list.
+    /// @brief Push object to the front of container.
     /// @param t Reference to the object.
     /// @return true if success, false otherwise.
     bool push_front(T&& t) { return node.link_back(new NodeT(move(t))); }
 
     /// @brief Erase the node pointed by iterator
-    void erase(Iterator& i) { delete i.node; }
+    void erase(Iterator& i) { i.remove(); }
     /// @brief Erase the node pointed by iterator
-    void erase(Iterator&& i) { delete i.node; }
+    void erase(Iterator&& i) { i.remove(); }
 
     /// @brief Check if list is empty
-    bool empty() { return begin() == end(); }
+    bool empty() { return node.next == &node; }
 
-    /// @brief Get iterator that points to the first element of the list.
-    /// @note Using iterator from an empty list may lead to undefined behaviour.
+    /// @brief Get iterator that points to the first element.
+    /// @note Using iterator from an empty container may lead to undefined behaviour.
     Iterator begin() { return Iterator(node.next); }
-    /// @brief Get iterator that points to one past the last element of the list.
-    /// @note Using iterator from an empty list may lead to undefined behaviour.
+    /// @brief Get iterator that points to one after the last element.
+    /// @note Using iterator from an empty container may lead to undefined behaviour.
     Iterator end() { return Iterator(&node); }
 };
 
@@ -129,11 +135,28 @@ template<typename T>
 class Queue : List<T>
 {
 public:
-    using List<T>::begin;
-    using List<T>::end;
     using List<T>::empty;
 
-    
+    /// @brief Push object to the back of container.
+    /// @param t Reference to the object.
+    /// @return true if success, false otherwise.
+    bool push(T& t) { return List<T>::push_back(t); }
+    /// @brief Push object to the back of container.
+    /// @param t Reference to the object.
+    /// @return true if success, false otherwise.
+    bool push(T&& t) { return List<T>::push_back(move(t)); }
+
+    /// @brief Remove first element of the container.
+    /// @note Pop an empty container may lead to undefined behaviour.
+    void pop() { return List<T>::erase(List<T>::begin()); }
+
+    /// @brief Access the first element.
+    /// @note Access an empty container may lead to undefined behaviour.
+    T& front() { return *List<T>::begin(); }
+    /// @brief Access last element.
+    /// @note Access an empty container may lead to undefined behaviour.
+    T& back() { return *(List<T>::end()--); }
+
 };
 
 }

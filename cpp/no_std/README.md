@@ -15,3 +15,8 @@ sudo cmake CMakeLists.txt
 sudo make
 sudo cp ./lib/*.a /usr/lib
 ```
+
+## Test
+```
+make test
+```

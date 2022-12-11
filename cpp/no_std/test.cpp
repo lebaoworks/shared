@@ -32,26 +32,60 @@ public:
 
 TEST (List, push_front) { 
     List<int> l;
-    l.push_front(1);
-    l.push_front(2);
-    l.push_front(3);
-    ASSERT_EQ(3, *l.begin());
-    l.erase(l.begin());
-    ASSERT_EQ(2, *l.begin());
-    l.erase(l.begin());
-    ASSERT_EQ(1, *l.begin());
+    for (int i=0; i<100; i++)
+        l.push_front(i);
 }
 
 TEST (List, push_back) { 
     List<int> l;
-    l.push_back(1);
-    l.push_back(2);
-    l.push_back(3);
-    ASSERT_EQ(1, *l.begin());
-    l.erase(l.begin());
-    ASSERT_EQ(2, *l.begin());
-    l.erase(l.begin());
-    ASSERT_EQ(3, *l.begin());
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+}
+
+TEST (List, erase_1) {
+    List<int> l;
+    for (int i=0; i<100; i++)
+    {
+        l.push_back(i);
+        l.erase(l.begin());
+    }
+}
+
+TEST (List, erase_2) {
+    List<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    for (int i=0; i<100; i++)
+        l.erase(l.begin());
+}
+
+TEST (List, empty) {
+    List<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    ASSERT_EQ(l.empty(), false);
+
+    for (int i=0; i<100; i++)
+        l.erase(l.begin());
+    ASSERT_EQ(l.empty(), true);
+}
+
+TEST (List, iterator_1) {
+    List<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    auto ite = l.begin();
+    for (int i=0; i<100; i++, ite++)
+        ASSERT_EQ(*ite, i);
+}
+
+TEST (List, iterator_2) {
+    List<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    auto i = 0;
+    for (auto ite=l.begin(); ite!=l.end(); ite++, i++)
+        ASSERT_EQ(*ite, i);
 }
 
 TEST (List, object) { 
@@ -62,6 +96,11 @@ TEST (List, object) {
     l.push_back(Dummy(2));
 }
 
+TEST (List, perfomance) {
+    List<int> l;
+    for (int i=0; i<1000000; i++)
+        l.push_back(i);
+}
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
