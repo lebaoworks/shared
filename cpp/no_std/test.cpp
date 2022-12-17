@@ -1,66 +1,97 @@
 #include <gtest/gtest.h>
 #include <stdio.h>
 
-#include "collections.h"
-using namespace cpp;
+#include "_std.h"
+using namespace _std;
 
-class Dummy
-{
-public:
-    int var = 0;
+TEST (list, push_back_ref) { 
+    list<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    int i=0;
+    for (auto it=l.begin(); it!=l.end(); it++, i++)
+        ASSERT_EQ(*it, i);
+}
 
-    Dummy() {
-        printf("%s()\n", __FUNCTION__);
-    }
-    Dummy(int x) : var(x)
-    {
-        printf("%s(int)\n", __FUNCTION__);
-    }
-    Dummy(const Dummy& b)
-    {
-        printf("%s(const Dummy&)\n", __FUNCTION__);
-        var = b.var;
-    }
-    Dummy(Dummy&& b)
-    {
-        printf("%s(Dummy&&)\n", __FUNCTION__);
-        var = b.var;
-        b.var = 0;
-    }
-};
+TEST (list, push_back_rvalue) { 
+    list<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i+1);
+    int i=1;
+    for (auto it=l.begin(); it!=l.end(); it++, i++)
+        ASSERT_EQ(*it, i);
+}
 
-
-TEST (List, push_front) { 
-    List<int> l;
+TEST (list, push_front_ref) { 
+    list<int> l;
     for (int i=0; i<100; i++)
         l.push_front(i);
+    int i=99;
+    for (auto it=l.begin(); it!=l.end(); it++, i--)
+        ASSERT_EQ(*it, i);
 }
 
-TEST (List, push_back) { 
-    List<int> l;
+TEST (list, push_front_rvalue) { 
+    list<int> l;
+    for (int i=0; i<100; i++)
+        l.push_front(i+1);
+    int i=100;
+    for (auto it=l.begin(); it!=l.end(); it++, i--)
+        ASSERT_EQ(*it, i);
+}
+
+TEST (list, pop_back) {
+    list<int> l;
     for (int i=0; i<100; i++)
         l.push_back(i);
-}
-
-TEST (List, erase_1) {
-    List<int> l;
-    for (int i=0; i<100; i++)
+    for (int i=99; i>0; i--)
     {
-        l.push_back(i);
-        l.erase(l.begin());
+        ASSERT_EQ(i, l.back());
+        l.pop_back();
     }
 }
 
-TEST (List, erase_2) {
-    List<int> l;
+TEST (list, pop_front) {
+    list<int> l;
     for (int i=0; i<100; i++)
         l.push_back(i);
     for (int i=0; i<100; i++)
-        l.erase(l.begin());
+    {
+        ASSERT_EQ(i, l.front());
+        l.pop_front();
+    }
 }
 
-TEST (List, empty) {
-    List<int> l;
+TEST (list, erase_ref) {
+    list<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    int c=0;
+    for (auto it=l.begin(); it!=l.end(); c++)
+    {
+        ASSERT_EQ(c, *it);
+        it = l.erase(it);
+    }
+}
+
+TEST (list, erase_rvalue) {
+    list<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    for (int i=1; i<100; i++)
+        ASSERT_EQ(i, *l.erase(l.begin()));
+}
+
+TEST (list, clear) {
+    list<int> l;
+    for (int i=0; i<100; i++)
+        l.push_back(i);
+    l.clear();
+    ASSERT_EQ(l.empty(), true);
+}
+
+TEST (list, empty) {
+    list<int> l;
     for (int i=0; i<100; i++)
         l.push_back(i);
     ASSERT_EQ(l.empty(), false);
@@ -70,37 +101,51 @@ TEST (List, empty) {
     ASSERT_EQ(l.empty(), true);
 }
 
-TEST (List, iterator_1) {
-    List<int> l;
+TEST (list, begin) {
+    list<int> l;
     for (int i=0; i<100; i++)
         l.push_back(i);
-    auto ite = l.begin();
-    for (int i=0; i<100; i++, ite++)
-        ASSERT_EQ(*ite, i);
+    for (int i=0; i<100; i++)
+    {
+        ASSERT_EQ(*l.begin(), i);
+        l.pop_front();
+    }
 }
 
-TEST (List, iterator_2) {
-    List<int> l;
+TEST (list, end) {
+    list<int> l;
     for (int i=0; i<100; i++)
         l.push_back(i);
     auto i = 0;
-    for (auto ite=l.begin(); ite!=l.end(); ite++, i++)
-        ASSERT_EQ(*ite, i);
+    for (auto ite=l.begin(); ite!=l.end(); ite++)
+        i++;
+    ASSERT_EQ(i, 100);
 }
 
-TEST (List, object) { 
-    List<Dummy> l;
-    Dummy dummy;
-    l.push_back(Dummy(1));
-    l.push_back(dummy);
-    l.push_back(Dummy(2));
+TEST (list, front) { 
+    list<int> l;
+    for (int i=0; i<100; i++)
+    {
+        l.push_front(i);
+        ASSERT_EQ(i, l.front());
+    }
 }
 
-TEST (List, perfomance) {
-    List<int> l;
+TEST (list, back) { 
+    list<int> l;
+    for (int i=0; i<100; i++)
+    {
+        l.push_back(i);
+        ASSERT_EQ(i, l.back());
+    }
+}
+
+TEST (list, perfomance_1m_ints) {
+    list<int> l;
     for (int i=0; i<1000000; i++)
         l.push_back(i);
 }
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
