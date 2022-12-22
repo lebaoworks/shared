@@ -41,6 +41,13 @@ public:
     T& operator*() const { return *_obj; }
     /// @brief Pointer-to-member operator
     T* operator->() const { return _obj; }
+
+    /// @brief Get pointer to the managed object.
+    T* get() { return _obj; }
+
+    /// @brief Release the ownership of the managed object.
+    /// @return Pointer to the managed object.
+    T* release() { auto ret = _obj; _obj = nullptr; return ret; }
 };
 
 /// @brief Constructs an object of type T and wraps it in a unique_ptr.
