@@ -1,0 +1,230 @@
+#pragma warning(disable: 4996)
+
+#include <iostream>
+#include <queue>
+#include <map>
+#include <utility>
+#include <limits.h>
+
+using namespace std;
+
+#ifdef DIJKSTRA
+vector<int> dijkstra(vector<vector<pair<int, int>>>& V_edges, int src)
+{
+    vector<int> dist(V_edges.size(), INT_MAX);
+    dist[src] = 0;
+
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>> > pq;
+    pq.push(make_pair(0, src));
+
+    while (!pq.empty())
+    {
+        int u = pq.top().second;
+        pq.pop();
+        for (auto& x : V_edges[u]) {
+            int v = x.first;
+            int weight = x.second;
+            if (dist[v] > dist[u] + weight)
+            {
+                dist[v] = dist[u] + weight;
+                pq.push(make_pair(dist[v], v));
+            }
+        }
+    }
+    return dist;
+}
+
+int main()
+{
+    auto f = freopen("dijkstra.inp", "r", stdin);
+    cout << f << endl;
+    ios_base::sync_with_stdio(false);
+
+    int n, m;
+    cin >> n >> m;
+    cout << n << " " << m << endl;
+    vector<vector<pair<int, int>>> edges(n + 1);
+    for (int i = 0; i < m; i++)
+    {
+        int u, v, d;
+        cin >> u >> v >> d;
+        edges[u].push_back({ v,d });
+        edges[v].push_back({ u,d });
+    }
+
+    auto distance = dijkstra(edges, 1);
+    for (int i = 1; i < distance.size(); i++)
+        printf("%d \t\t %d\n", i, distance[i]); 
+    
+    return 0;
+}
+#endif
+
+#ifdef CONNECTED
+
+int root(vector<int>& parent, int u)
+{
+    if (parent[u] == u)
+        return u;
+    return root(parent, parent[u]);
+}
+map<int, vector<int>> list_connecteds(vector<pair<int, int>>& edges, int V)
+{
+    vector<int> parent(V + 1);
+    for (int i = 1; i <= V; i++)
+        parent[i] = i;
+    for (auto& edge : edges)
+    {
+        auto ru = root(parent, edge.first);
+        auto rv = root(parent, edge.second);
+        if (ru != rv)
+            parent[ru] = rv;
+    }
+    for (int i = 1; i <= V; i++)
+        parent[i] = root(parent, i);
+    map<int, vector<int> > connecteds;
+    for (int i = 1; i <= V; i++)
+        connecteds[parent[i]].push_back(i);
+    return connecteds;
+}
+
+int main()
+{
+    auto f = freopen("connected.inp", "r", stdin);
+    cout << f << endl;
+    ios_base::sync_with_stdio(false);
+
+    int n, m;
+    cin >> n >> m;
+    cout << n << " " << m << endl;
+    vector<pair<int, int>> edges;
+    for (int i = 0; i < m; i++)
+    {
+        int u, v;
+        cin >> u >> v;
+        edges.push_back({ u,v });
+    }
+    for (auto& connected : list_connecteds(edges, n))
+    {
+        printf("Parent: %d\n", connected.first);
+        for (auto u : connected.second)
+            printf("\t %d\n", u);
+    }
+    return 0;
+}
+
+#endif
+
+//#define SPANNING_TREE
+#ifdef SPANNING_TREE
+int main()
+{
+    auto f = freopen("spanning_tree.inp", "r", stdin);
+    cout << f << endl;
+    ios_base::sync_with_stdio(false);
+
+    int n, m;
+    cin >> n >> m;
+    cout << n << " " << m << endl;
+    vector<tuple<int, int, int>> edges;
+    for (int i = 0; i < m; i++)
+    {
+        int u, v, d;
+        cin >> u >> v >> d;
+        edges.push_back({ d, u, v});
+    }
+
+    auto comp = [](tuple<int, int, int>& a, tuple<int, int, int>& b) -> bool {
+        return get<0>(a) > get<0>(b);
+    };
+    sort(edges.begin(), edges.end(), comp);
+
+    vector<bool> marked(n + 1, false);
+    int total = 0;
+    for (auto& edge : edges)
+    {
+        auto d = get<0>(edge);
+        auto u = get<1>(edge);
+        auto v = get<2>(edge);
+        if (marked[u] && marked[v])
+            continue;
+        total += d;
+        marked[u] = marked[v] = true;
+    }
+    printf("%d\n", total);
+    return 0;
+}
+
+#endif
+
+//#define LCS
+#ifdef LCS
+
+/* Returns length of LCS for X[0..m-1], Y[0..n-1] */
+int lcs(char* X, char* Y, int m, int n, vector<vector<int> >& dp)
+{
+    if (m == 0 || n == 0)
+        return 0;
+    if (X[m - 1] == Y[n - 1])
+        return dp[m][n] = 1 + lcs(X, Y, m - 1, n - 1, dp);
+
+    if (dp[m][n] != -1) {
+        return dp[m][n];
+    }
+    return dp[m][n] = max(lcs(X, Y, m, n - 1, dp),
+        lcs(X, Y, m - 1, n, dp));
+}
+
+/* Driver code */
+int main()
+{
+    char X[] = "AGGTAB";
+    char Y[] = "GXTXAYB";
+
+    int m = strlen(X);
+    int n = strlen(Y);
+    vector<vector<int> > dp(m + 1, vector<int>(n + 1, -1));
+    cout << "Length of LCS is " << lcs(X, Y, m, n, dp);
+
+    return 0;
+}
+
+
+#endif
+
+
+#define PALINDROME
+#ifdef PALINDROME
+
+int lps(string& s1, string& s2, int n1, int n2, vector<vector<int> >& dp)
+{
+    if (n1 == 0 || n2 == 0) {
+        return 0;
+    }
+    if (dp[n1][n2] != -1) {
+        return dp[n1][n2];
+    }
+    if (s1[n1 - 1] == s2[n2 - 1]) {
+        return dp[n1][n2] = 1 + lps(s1, s2, n1 - 1, n2 - 1, dp);
+    }
+    else {
+        return dp[n1][n2] = max(lps(s1, s2, n1 - 1, n2, dp),
+            lps(s1, s2, n1, n2 - 1, dp));
+    }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    string seq = "BAOASDBAOZXC";
+    int n = seq.size();
+    string s2 = seq;
+    reverse(s2.begin(), s2.end());
+
+    vector<vector<int> > dp(seq.length() + 1, vector<int>(seq.length() + 1, -1));
+    cout << "The length of the LPS is "
+        << lps(s2, seq, n, n, dp) << endl;
+    return 0;
+}
+
+#endif
