@@ -89,6 +89,10 @@ func getVolumeDiskExtents(guid string) ([]*DISK_EXTENT, error) {
 	}
 	volumeDiskExtents := (*VOLUME_DISK_EXTENTS)(unsafe.Pointer(&buffer[0]))
 
+	if volumeDiskExtents.NumberOfDiskExtents == 0 {
+		return []*DISK_EXTENT{}, nil
+	}
+
 	extents := []DISK_EXTENT{}
 	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&extents)))
 	sliceHeader.Cap = int(volumeDiskExtents.NumberOfDiskExtents)
